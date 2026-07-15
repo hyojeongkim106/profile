@@ -8,10 +8,12 @@ st.set_page_config(
 
 st.title("🎁 랜덤 가챠 뽑기")
 
+# 뽑기 결과 저장
+if "history" not in st.session_state:
+    st.session_state.history = []
 
-# --------------------
-# 아이템 데이터
-# --------------------
+
+# 가챠 목록
 items = [
     {
         "name": "🌟 전설의 검",
@@ -36,100 +38,52 @@ items = [
 ]
 
 
-# --------------------
-# 기록 저장
-# --------------------
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-
-if "last_item" not in st.session_state:
-    st.session_state.last_item = None
-
-
-
-# --------------------
-# 가챠 함수
-# --------------------
 def gacha():
 
-    number = random.randint(1, 100)
+    rand = random.randint(1, 100)
 
     total = 0
 
-    for item in items:
+    for item, chance in items:
+        total += chance
 
-        total += item["chance"]
-
-        if number <= total:
+        if rand <= total:
             return item
 
 
 
-# --------------------
-# 뽑기 버튼
-# --------------------
+st.write("버튼을 눌러 랜덤 아이템을 뽑아보세요!")
+
 if st.button("🎰 가챠 뽑기"):
 
     result = gacha()
 
-    st.session_state.last_item = result
-
     st.session_state.history.append(result)
 
-
-
-# --------------------
-# 결과 창
-# --------------------
-if st.session_state.last_item:
-
-    item = st.session_state.last_item
-
-    st.success("🎉 아이템 획득!")
-
-    st.subheader(item["name"])
-
-    st.write("📖 설명")
-    st.info(item["description"])
+    st.success(f"획득 결과 : {result}")
 
 
 
-# --------------------
-# 기록
-# --------------------
 st.divider()
 
 st.subheader("📜 뽑기 기록")
 
-
 if len(st.session_state.history) == 0:
-
-    st.write("아직 뽑은 아이템이 없습니다.")
+    st.write("아직 뽑은 기록이 없습니다.")
 
 else:
-
     for i, item in enumerate(
         reversed(st.session_state.history),
         1
     ):
-
-        with st.expander(
-            f"{i}번째 뽑기 : {item['name']}"
-        ):
-
-            st.write(
-                item["description"]
-            )
+        st.write(
+            f"{i}번째 뽑기 : {item}"
+        )
 
 
-
-# --------------------
 # 초기화
-# --------------------
 if st.button("🔄 기록 초기화"):
 
     st.session_state.history = []
-    st.session_state.last_item = None
 
     st.rerun()
