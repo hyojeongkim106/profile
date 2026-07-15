@@ -20,10 +20,8 @@ if st.button("🚀 속도 UP"):
 
     else:
         st.info("이미 최고 레벨입니다.")
-    if st.button("🔄 다시 시작"):
-
-    st.session_state.level = 1
-    st.session_state.speed = 2.0
-    st.session_state.score = 0
+   if st.button("속도 UP"):
+    if st.session_state.level < 5:
+        st.session_state.level += 1
 
     st.rerun()
