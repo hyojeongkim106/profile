@@ -1,69 +1,108 @@
 import streamlit as st
 import random
 import time
+from streamlit_autorefresh import st_autorefresh
 
-st.set_page_config(page_title="두더지 게임", page_icon="🐹")
+st.set_page_config(
+    page_title="🐹 두더지 게임",
+    page_icon="🐹",
+    layout="centered"
+)
 
-# 초기값
+# ------------------------
+# Session State
+# ------------------------
+if "level" not in st.session_state:
+    st.session_state.level = 1
+
 if "score" not in st.session_state:
     st.session_state.score = 0
 
 if "mole" not in st.session_state:
-    st.session_state.mole = random.randint(0, 8)
+    st.session_state.mole = random.randint(0,8)
 
-if "start_time" not in st.session_state:
-    st.session_state.start_time = time.time()
+if "last_move" not in st.session_state:
+    st.session_state.last_move = time.time()
 
-if "game_over" not in st.session_state:
-    st.session_state.game_over = False
+# ------------------------
+# 레벨별 속도
+# ------------------------
+MOLE_SPEED = max(0.4, 2.0 - (st.session_state.level-1)*0.4)
 
-GAME_TIME = 30
+# 0.1초마다 새로고침
+st_autorefresh(interval=100,key="refresh")
 
-elapsed = int(time.time() - st.session_state.start_time)
-remaining = max(0, GAME_TIME - elapsed)
+# ------------------------
+# 두더지 이동
+# ------------------------
+if time.time()-st.session_state.last_move >= MOLE_SPEED:
+    st.session_state.mole=random.randint(0,8)
+    st.session_state.last_move=time.time()
 
-if remaining == 0:
-    st.session_state.game_over = True
-
+# ------------------------
+# 화면
+# ------------------------
 st.title("🐹 두더지 게임")
 
-col1, col2 = st.columns(2)
-col1.metric("점수", st.session_state.score)
-col2.metric("남은 시간", f"{remaining}초")
+c1,c2,c3=st.columns(3)
+
+c1.metric("레벨",st.session_state.level)
+c2.metric("점수",st.session_state.score)
+c3.metric("속도",f"{MOLE_SPEED:.1f}초")
 
 st.write("---")
 
-if not st.session_state.game_over:
+# ------------------------
+# 게임판
+# ------------------------
+for r in range(3):
 
-    cols = st.columns(3)
+    cols=st.columns(3)
 
-    for i in range(9):
+    for c in range(3):
 
-        if i % 3 == 0 and i != 0:
-            cols = st.columns(3)
+        idx=r*3+c
 
-        col = cols[i % 3]
+        if idx==st.session_state.mole:
+            text="🐹"
+        else:
+            text="🟩"
 
-        with col:
+        if cols[c].button(text,key=idx):
 
-            if i == st.session_state.mole:
-                text = "🐹"
-            else:
-                text = "🟩"
+            if idx==st.session_state.mole:
 
-            if st.button(text, key=i):
+                st.session_state.score+=1
+                st.session_state.mole=random.randint(0,8)
+                st.session_state.last_move=time.time()
+                st.rerun()
 
-                if i == st.session_state.mole:
-                    st.session_state.score += 1
-                    st.session_state.mole = random.randint(0, 8)
-                    st.rerun()
+st.write("---")
 
-else:
-    st.success(f"게임 종료! 최종 점수 : {st.session_state.score}")
+# ------------------------
+# 다음 레벨
+# ------------------------
+if st.button("➡️ 다음 레벨"):
 
-    if st.button("다시 시작"):
-        st.session_state.score = 0
-        st.session_state.start_time = time.time()
-        st.session_state.mole = random.randint(0, 8)
-        st.session_state.game_over = False
-        st.rerun()
+    if st.session_state.level<5:
+
+        st.session_state.level+=1
+
+        st.success(f"Level {st.session_state.level}")
+
+    else:
+
+        st.balloons()
+        st.success("🏆 모든 레벨 클리어!")
+
+# ------------------------
+# 다시 시작
+# ------------------------
+if st.button("🔄 처음부터"):
+
+    st.session_state.level=1
+    st.session_state.score=0
+    st.session_state.mole=random.randint(0,8)
+    st.session_state.last_move=time.time()
+
+    st.rerun()
