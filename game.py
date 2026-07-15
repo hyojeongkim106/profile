@@ -89,3 +89,5 @@ elif st.session_state.page == "info":
 
 elif st.session_state.page == "game":
     game()
+pip install streamlit
+streamlit run app.py
