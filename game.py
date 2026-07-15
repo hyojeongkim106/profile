@@ -1,93 +1,41 @@
 import streamlit as st
+import random
 
-# 페이지 설정
 st.set_page_config(
-    page_title="두더지 게임",
-    page_icon="🐹",
-    layout="centered"
+    page_title="사다리 게임",
+    page_icon="🪜"
 )
 
-# 상태 저장
-if "page" not in st.session_state:
-    st.session_state.page = "home"
+st.title("🪜 사다리 게임")
 
-# -------------------------
-# 홈 화면
-# -------------------------
-def home():
+# 참가자 입력
+names = st.text_input(
+    "참가자 이름을 입력하세요 (쉼표로 구분)",
+    "철수,영희,민수,지수"
+)
 
-    st.title("🐹 두더지 게임")
-    st.write("재미있는 두더지 잡기 게임입니다!")
-
-    st.divider()
-
-    col1, col2 = st.columns(2)
-
-    # 시작 버튼
-    with col1:
-        if st.button("🎮 시작하기", use_container_width=True):
-            st.session_state.page = "game"
-            st.rerun()
-
-    # 설명 버튼
-    with col2:
-        if st.button("📖 게임 설명", use_container_width=True):
-            st.session_state.page = "info"
-            st.rerun()
+# 결과 입력
+results = st.text_input(
+    "결과를 입력하세요 (쉼표로 구분)",
+    "꽝,커피,간식,선물"
+)
 
 
-# -------------------------
-# 설명 화면
-# -------------------------
-def info():
+if st.button("🎮 사다리 시작"):
 
-    st.title("📖 게임 설명")
+    people = [x.strip() for x in names.split(",")]
+    prizes = [x.strip() for x in results.split(",")]
 
-    st.write("""
-    ## 🐹 두더지 게임 방법
+    if len(people) != len(prizes):
+        st.error("참가자 수와 결과 개수가 같아야 합니다.")
 
-    1. 게임 시작 버튼을 눌러 게임을 시작합니다.
-    2. 나타나는 두더지를 클릭해서 점수를 얻습니다.
-    3. 빠르게 두더지를 잡아 높은 점수를 기록하세요!
+    else:
+        st.divider()
+        st.subheader("🪜 결과")
 
-    앞으로 추가될 기능:
-    - 레벨 시스템
-    - 점수 시스템
-    - 난이도 증가
-    - 최고 점수 저장
-    """)
+        random.shuffle(prizes)
 
-    if st.button("🏠 홈으로 돌아가기"):
-        st.session_state.page = "home"
-        st.rerun()
+        for person, prize in zip(people, prizes):
+            st.write(f"👤 {person}  ➡️  🎁 {prize}")
 
-
-# -------------------------
-# 게임 화면
-# -------------------------
-def game():
-
-    st.title("🎮 두더지 게임")
-
-    st.write("여기는 게임 화면입니다.")
-
-    # 추후 두더지 게임 코드 추가 위치
-
-    if st.button("🏠 홈으로 돌아가기"):
-        st.session_state.page = "home"
-        st.rerun()
-
-
-# -------------------------
-# 페이지 이동
-# -------------------------
-if st.session_state.page == "home":
-    home()
-
-elif st.session_state.page == "info":
-    info()
-
-elif st.session_state.page == "game":
-    game()
-pip install streamlit
-streamlit run app.py
+        st.success("사다리 게임 종료!")
