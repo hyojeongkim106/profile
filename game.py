@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import time
-from streamlit_autorefresh import st_autorefresh
+
 
 st.set_page_config(
     page_title="🐹 두더지 게임",
