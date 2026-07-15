@@ -1,96 +1,73 @@
 import streamlit as st
 import random
-import time
 
 st.set_page_config(
-    page_title="사다리 게임",
-    page_icon="🪜"
+    page_title="랜덤 가챠 뽑기",
+    page_icon="🎁"
 )
 
-st.title("🪜 사다리 타기 게임")
+st.title("🎁 랜덤 가챠 뽑기")
+
+# 뽑기 결과 저장
+if "history" not in st.session_state:
+    st.session_state.history = []
 
 
-# 참가자
-players = ["철수", "영희", "민수", "지수"]
-
-# 결과
-results = ["꽝", "커피", "치킨", "상품"]
-
-
-# 사다리 생성
-if "ladder" not in st.session_state:
-    ladder = []
-
-    for y in range(8):
-        row = []
-
-        for x in range(len(players)-1):
-            row.append(random.choice([0,1]))
-
-        ladder.append(row)
-
-    st.session_state.ladder = ladder
+# 가챠 목록
+items = [
+    ("🌟 전설 아이템", 5),
+    ("💎 영웅 아이템", 15),
+    ("🔷 희귀 아이템", 30),
+    ("🟩 일반 아이템", 50)
+]
 
 
-# 사다리 그리기
-st.subheader("🪜 사다리")
+def gacha():
 
-for y, row in enumerate(st.session_state.ladder):
+    rand = random.randint(1, 100)
 
-    line = ""
+    total = 0
 
-    for x in range(len(players)):
+    for item, chance in items:
+        total += chance
 
-        line += "│"
+        if rand <= total:
+            return item
 
-        if x < len(players)-1:
-            if row[x]:
-                line += "──"
-            else:
-                line += "  "
 
-    st.write(line)
+
+st.write("버튼을 눌러 랜덤 아이템을 뽑아보세요!")
+
+if st.button("🎰 가챠 뽑기"):
+
+    result = gacha()
+
+    st.session_state.history.append(result)
+
+    st.success(f"획득 결과 : {result}")
+
 
 
 st.divider()
 
+st.subheader("📜 뽑기 기록")
 
-if st.button("🎮 시작"):
+if len(st.session_state.history) == 0:
+    st.write("아직 뽑은 기록이 없습니다.")
 
-    start = st.selectbox(
-        "출발자 선택",
-        players
-    )
-
-    pos = players.index(start)
-
-    st.write(f"🚶 {start} 출발!")
-
-    box = st.empty()
-
-    # 이동
-    for y, row in enumerate(st.session_state.ladder):
-
-        if pos > 0 and row[pos-1]:
-            pos -= 1
-
-        elif pos < len(players)-1 and row[pos]:
-            pos += 1
+else:
+    for i, item in enumerate(
+        reversed(st.session_state.history),
+        1
+    ):
+        st.write(
+            f"{i}번째 뽑기 : {item}"
+        )
 
 
-        ladder_view = ""
+# 초기화
+if st.button("🔄 기록 초기화"):
 
-        for i in range(len(players)):
-            if i == pos:
-                ladder_view += "🟢"
-            else:
-                ladder_view += "│"
+    st.session_state.history = []
 
-        box.write(ladder_view)
-
-        time.sleep(0.5)
-
-
-    st.success(
-        f"🎉 결과 : {results[pos]}"
-    )
+    st.rerun()
