@@ -50,6 +50,24 @@ if st.button("🎰 가챠 뽑기"):
 
 st.divider()
 
+if st.button("📖 아이템 설명 보기"):
+
+    st.subheader("📖 아이템 설명")
+
+    for item in items:
+
+        with st.expander(item["name"]):
+
+            st.write(item["description"])
+
+            st.write(
+                f"획득 확률 : {item['chance']}%"
+            )
+
+
+
+st.divider()
+
 st.subheader("📜 뽑기 기록")
 
 if len(st.session_state.history) == 0:
